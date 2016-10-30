@@ -1,31 +1,55 @@
 /*
-
-
-
-
+* Simple RSSI Antenna Tracker
+*
+*
+*
+*
 */
 
 #include <Servo.h>
 #include "Timer.h"
 
+
+/*
+ * Pin mapping
+ * You can change these pins, just make sure that 
+ * RSSI pins are analog inputs
+ * and servo pin supports PWM
+ */
 #define LEFT_RSSI_PIN       0     // analog RSSI measurement pin
 #define RIGHT_RSSI_PIN      1
 #define PAN_SERVO_PIN       5     // Pan servo pin
 
-// receivers have some difference
-// find value that stops tracker from crawling
-#define RSSI_OFFSET_RIGHT   55
+/*
+ * There is going to be some difference in receivers,
+ * one is going to be less sensitive than the other.
+ * It will result in slight offset when tracker is centered on target
+ * 
+ * Find value that evens out RSSI 
+ */
+#define RSSI_OFFSET_RIGHT   0
 #define RSSI_OFFSET_LEFT    0
 
-// max values in degrees
-// find limit values where your servo doesn't buzz
+/*
+ * Safety limits for servo
+ * 
+ * Find values where servo doesn't buzz at full deflection
+ */
 #define SERVO_MAX           170
 #define SERVO_MIN           6
 
-// prevents tracker oscillating when target is in the center
+/*
+ * Center deadband value!
+ * Prevents tracker from oscillating when target is in the center
+ */
 #define DEADBAND            15
 
-// either 1 or -1
+/*
+ * Depending which way around you put your servo
+ * you may have to change direction
+ * 
+ * either 1 or -1
+ */
 #define SERVO_DIRECTION     1
 
 #define FIR_SIZE            10
@@ -35,7 +59,7 @@
 uint16_t rssi_left_array[FIR_SIZE];
 uint16_t rssi_right_array[FIR_SIZE];
 
-uint8_t anglePan = 90;
+float anglePan = 90;
 boolean debug = false;
 
 Timer timer;
@@ -78,8 +102,9 @@ void mainLoop() {
   float ang = 0;
 
   // If avg RSSI is above 90%, don't move
-  if ((avgRight + avgLeft) / 2 > 360)
+  if ((avgRight + avgLeft) / 2 > 360) {
     return;
+  }
 
   // if target is in the middle, don't move
   if (abs(avgRight - avgLeft) < DEADBAND ) {
@@ -97,7 +122,7 @@ void mainLoop() {
 
   // move servo by n degrees
   movePanBy(ang);
-  
+
 
   if (debug) {
     Serial.print("RSSI: ");
@@ -110,7 +135,6 @@ void mainLoop() {
 
     Serial.print(" > ");
     Serial.println(ang);
-
   }
 }
 
@@ -137,7 +161,7 @@ void measureRSSI() {
 }
 
 uint16_t avg(uint16_t samples[], uint8_t n) {
-  
+
   uint32_t summ = 0;
   for (uint8_t i = 0; i < n; i++) {
     summ += samples[i];
@@ -146,11 +170,10 @@ uint16_t avg(uint16_t samples[], uint8_t n) {
   return uint16_t(summ / n);
 }
 
-
 void advanceArray(uint16_t *samples, uint8_t n) {
 
-  for(uint8_t i = 0; i < n-1; i++) {
-    samples[i] = samples[i+1];
+  for (uint8_t i = 0; i < n - 1; i++) {
+    samples[i] = samples[i + 1];
   }
 }
 
