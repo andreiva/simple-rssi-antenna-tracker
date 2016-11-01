@@ -1,9 +1,9 @@
 /*
-* Simple RSSI Antenna Tracker
-*
-*
-*
-*
+  Simple RSSI Antenna Tracker
+
+
+
+
 */
 
 #include <Servo.h>
@@ -11,45 +11,52 @@
 
 
 /*
- * Pin mapping
- * You can change these pins, just make sure that 
- * RSSI pins are analog inputs
- * and servo pin supports PWM
- */
+   Pin mapping
+   You can change these pins, just make sure that
+   RSSI pins are analog inputs
+   and servo pin supports PWM
+*/
 #define LEFT_RSSI_PIN       0     // analog RSSI measurement pin
 #define RIGHT_RSSI_PIN      1
 #define PAN_SERVO_PIN       5     // Pan servo pin
 
 /*
- * There is going to be some difference in receivers,
- * one is going to be less sensitive than the other.
- * It will result in slight offset when tracker is centered on target
- * 
- * Find value that evens out RSSI 
- */
-#define RSSI_OFFSET_RIGHT   0
+   There is going to be some difference in receivers,
+   one is going to be less sensitive than the other.
+   It will result in slight offset when tracker is centered on target
+
+   Find value that evens out RSSI
+*/
+#define RSSI_OFFSET_RIGHT   20
 #define RSSI_OFFSET_LEFT    0
 
 /*
- * Safety limits for servo
- * 
- * Find values where servo doesn't buzz at full deflection
- */
+   MIN and MAX RSSI values cooresponding to 0% and 100% from receiver
+   See serial monitor
+*/
+#define RSSI_MAX            400
+#define RSSI_MIN            120
+
+/*
+   Safety limits for servo
+
+   Find values where servo doesn't buzz at full deflection
+*/
 #define SERVO_MAX           170
 #define SERVO_MIN           6
 
 /*
- * Center deadband value!
- * Prevents tracker from oscillating when target is in the center
- */
-#define DEADBAND            15
+   Center deadband value!
+   Prevents tracker from oscillating when target is in the center
+*/
+#define DEADBAND            16
 
 /*
- * Depending which way around you put your servo
- * you may have to change direction
- * 
- * either 1 or -1
- */
+   Depending which way around you put your servo
+   you may have to change direction
+
+   either 1 or -1
+*/
 #define SERVO_DIRECTION     1
 
 #define FIR_SIZE            10
@@ -97,20 +104,26 @@ void loop() {
 
 void mainLoop() {
 
-  uint16_t avgLeft = avg(rssi_left_array, FIR_SIZE) + RSSI_OFFSET_LEFT;
-  uint16_t avgRight = avg(rssi_right_array, FIR_SIZE) + RSSI_OFFSET_RIGHT;
-  float ang = 0;
+  uint16_t avgLeft = max(avg(rssi_left_array, FIR_SIZE) + RSSI_OFFSET_LEFT, RSSI_MIN);
+  uint16_t avgRight = max(avg(rssi_right_array, FIR_SIZE) + RSSI_OFFSET_RIGHT, RSSI_MIN);
 
   // If avg RSSI is above 90%, don't move
   if ((avgRight + avgLeft) / 2 > 360) {
     return;
   }
 
+  /*
+     the lower total RSSI is, the lower deadband gets
+     allows more precise tracking then target is far away
+  */
+  uint8_t dynamicDeadband = (float(avgRight + avgLeft) / 2 - RSSI_MIN) / (RSSI_MAX - RSSI_MIN) * DEADBAND;
+
   // if target is in the middle, don't move
-  if (abs(avgRight - avgLeft) < DEADBAND ) {
+  if (abs(avgRight - avgLeft) < dynamicDeadband ) {
     return;
   }
 
+  float ang = 0;
 
   // move towards stronger signal
   if (avgRight > avgLeft) {
