@@ -138,10 +138,16 @@ void mainLoop() {
 
 
   if (debug) {
-    Serial.print("RSSI: ");
+    Serial.print("RSSI%: ");
     Serial.print(map(avgLeft, 120, 400, 0, 100));
     Serial.print(", ");
     Serial.print(map(avgRight, 120, 400, 0, 100));
+
+    // raw rssi values, use these for RSSI_MIN and RSSI_MAX
+    //Serial.print("RAW RSSI: ");
+    //Serial.print(avgLeft);
+    //Serial.print(", ");
+    //Serial.print(avgRight);
 
     Serial.print(" servo: ");
     Serial.print(anglePan);
