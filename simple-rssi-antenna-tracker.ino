@@ -3,11 +3,32 @@
 
 
 
-
+RELATIVE
 */
 
 #include <Servo.h>
-#include "Timer.h"
+#include <Timer.h>
+
+/* 
+ *  For testing different curves
+ *  All new curves are more precise
+ *  and maintain lock better than old RELATIVE
+ *  
+ *  Uncomment one 
+ */
+//#define EXPONENTIAL
+//#define RELATIVE          // old
+#define SIGMOID             // TODO needs more work
+//#define PROPORTIONAL
+
+
+#define SERVO_MAX_STEP     5
+#define SERVO_SLOPE        1
+
+
+#if !defined(EXPONENTIAL) && !defined(SIGMOID) && !defined(PROPORTIONAL) && !defined(RELATIVE)
+  #error "Please define tracking curve: EXPONENTIAL, SIGMOID, PROPORTIONAL, RELATIVE"
+#endif
 
 
 /*
@@ -31,7 +52,7 @@
 #define RSSI_OFFSET_LEFT    0
 
 /*
-   MIN and MAX RSSI values cooresponding to 0% and 100% from receiver
+   MIN and MAX RSSI values corresponding to 0% and 100% from receiver
    See serial monitor
 */
 #define RSSI_MAX            400
@@ -42,14 +63,14 @@
 
    Find values where servo doesn't buzz at full deflection
 */
-#define SERVO_MAX           170
-#define SERVO_MIN           6
+#define SERVO_MAX           175
+#define SERVO_MIN           3
 
 /*
    Center deadband value!
    Prevents tracker from oscillating when target is in the center
 */
-#define DEADBAND            16
+#define DEADBAND            18
 
 /*
    Depending which way around you put your servo
@@ -127,10 +148,59 @@ void mainLoop() {
 
   // move towards stronger signal
   if (avgRight > avgLeft) {
+  
+  #if defined(EXPONENTIAL)
+    float x = float(avgRight - avgLeft);
+    x = x * x / 500;
+    x = min(x, SERVO_MAX_STEP);
+    ang = x * SERVO_DIRECTION * -1;
+  #endif
+
+  #if defined(RELATIVE)
     ang = float(avgRight / avgLeft) * (SERVO_DIRECTION * -1);
+  #endif
+
+  #if defined(SIGMOID)
+    float x = float(avgRight - avgLeft) / 10;
+    x -= 2;
+    x = min(SERVO_MAX_STEP / (1+ pow(EULER, -x * SERVO_SLOPE)), SERVO_MAX_STEP);
+    ang = x * SERVO_DIRECTION * -1;
+  #endif
+    
+  #if defined(PROPORTIONAL)
+    float x = float(avgRight - avgLeft) / 10;
+    x = min(x, SERVO_MAX_STEP);
+    ang = x * SERVO_DIRECTION * -1;  
+  #endif
+    
+
   }
   else {
-    ang = float(avgLeft / avgRight) * (SERVO_DIRECTION);
+
+  
+  #if defined(EXPONENTIAL)
+    float x = float(avgLeft - avgRight);
+    x = x * x / 500;
+    x = min(x, 5);
+    ang = x * SERVO_DIRECTION;
+  #endif
+
+  #if defined(RELATIVE)
+    ang = float(avgLeft / avgRight) * SERVO_DIRECTION;
+  #endif
+
+  #if defined(SIGMOID)
+    float x = float(avgLeft - avgRight) / 10;
+    x -= 2;
+    x = min(SERVO_MAX_STEP / (1+ pow(EULER, -x * SERVO_SLOPE)), SERVO_MAX_STEP);
+    ang = x * SERVO_DIRECTION;
+  #endif
+    
+  #if defined(PROPORTIONAL)
+    float x = float(avgLeft - avgRight) / 10;
+    x = min(x, SERVO_MAX_STEP);
+    ang = x * SERVO_DIRECTION;  
+  #endif
   }
 
   // move servo by n degrees
@@ -195,7 +265,6 @@ void advanceArray(uint16_t *samples, uint8_t n) {
     samples[i] = samples[i + 1];
   }
 }
-
 
 
 
