@@ -22,11 +22,9 @@ No pairing, no telemetry, no configuration, just tune and track.
 
 # What will you need
 * [Quanum RC540R 5.8GHz 40CH Race Band FPV Diversity Receiver](https://www.hobbyking.com/en_us/5-8ghz-32ch-8-race-channels-diversity-vrx.html)
+    * known to work with: FR632, Boscam D58-2
 * Two directional 5.8GHz antennas, helical or patch
 * [Arduino Pro Mini ATmega32U4](http://www.ebay.com/sch/i.html?_from=R40&_sacat=0&_nkw=Arduino++atmega+32u4&rt=nc&LH_BIN=1) $4
 * One servo, 9 gramms or similar 4$
 * [5V voltage regulator](http://www.ebay.com/sch/i.html?_from=R40&_trksid=p2047675.m570.l1313.TR0.TRC0.H0.TRS0&_nkw=MP1584EN&_sacat=0)
 * tracker head mount, 3D printed or made from scrap
-
-
-
