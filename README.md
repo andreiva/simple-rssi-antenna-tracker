@@ -28,3 +28,6 @@ No pairing, no telemetry, no configuration, just tune and track.
 * One servo, 9 gramms or similar 4$
 * [5V voltage regulator](http://www.ebay.com/sch/i.html?_from=R40&_trksid=p2047675.m570.l1313.TR0.TRC0.H0.TRS0&_nkw=MP1584EN&_sacat=0)
 * tracker head mount, 3D printed or made from scrap
+
+###Youtube video
+[https://www.youtube.com/watch?v=aACTKziuDVE](https://www.youtube.com/watch?v=aACTKziuDVE)
