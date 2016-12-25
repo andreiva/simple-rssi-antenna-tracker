@@ -16,15 +16,13 @@ RELATIVE
  *  
  *  Uncomment one 
  */
-//#define EXPONENTIAL
-//#define RELATIVE          // old
-#define SIGMOID             // TODO needs more work
-//#define PROPORTIONAL
+//#define EXPONENTIAL       // OK
+//#define RELATIVE          // old, don't use
+#define SIGMOID             // Best
+//#define PROPORTIONAL      // twitchy
 
-
-#define SERVO_MAX_STEP     5
-#define SERVO_SLOPE        1
-
+#define SIGMOID_SLOPE       1
+#define SIGMOID_OFFSET      4
 
 #if !defined(EXPONENTIAL) && !defined(SIGMOID) && !defined(PROPORTIONAL) && !defined(RELATIVE)
   #error "Please define tracking curve: EXPONENTIAL, SIGMOID, PROPORTIONAL, RELATIVE"
@@ -47,8 +45,8 @@ RELATIVE
    It will result in slight offset when tracker is centered on target
 
    Find value that evens out RSSI
-*/
-#define RSSI_OFFSET_RIGHT   20
+ */
+#define RSSI_OFFSET_RIGHT   17
 #define RSSI_OFFSET_LEFT    0
 
 /*
@@ -67,10 +65,18 @@ RELATIVE
 #define SERVO_MIN           3
 
 /*
+ * Servo 'speed' limits
+ * MAX and MIN step in degrees
+ */
+#define SERVO_MAX_STEP      5
+#define SERVO_MIN_STEP      0.09     // prevents windup and servo crawl
+
+/*
    Center deadband value!
    Prevents tracker from oscillating when target is in the center
+   When using SIGMOID or EXPONENTIAL you can set this almost to 0
 */
-#define DEADBAND            18
+#define DEADBAND            15
 
 /*
    Depending which way around you put your servo
@@ -152,7 +158,6 @@ void mainLoop() {
   #if defined(EXPONENTIAL)
     float x = float(avgRight - avgLeft);
     x = x * x / 500;
-    x = min(x, SERVO_MAX_STEP);
     ang = x * SERVO_DIRECTION * -1;
   #endif
 
@@ -162,26 +167,20 @@ void mainLoop() {
 
   #if defined(SIGMOID)
     float x = float(avgRight - avgLeft) / 10;
-    x -= 2;
-    x = min(SERVO_MAX_STEP / (1+ pow(EULER, -x * SERVO_SLOPE)), SERVO_MAX_STEP);
+    x = SERVO_MAX_STEP / (1+ exp(-SIGMOID_SLOPE * x + SIGMOID_OFFSET));
     ang = x * SERVO_DIRECTION * -1;
   #endif
     
   #if defined(PROPORTIONAL)
     float x = float(avgRight - avgLeft) / 10;
-    x = min(x, SERVO_MAX_STEP);
     ang = x * SERVO_DIRECTION * -1;  
   #endif
-    
-
   }
   else {
 
-  
   #if defined(EXPONENTIAL)
     float x = float(avgLeft - avgRight);
     x = x * x / 500;
-    x = min(x, 5);
     ang = x * SERVO_DIRECTION;
   #endif
 
@@ -191,17 +190,19 @@ void mainLoop() {
 
   #if defined(SIGMOID)
     float x = float(avgLeft - avgRight) / 10;
-    x -= 2;
-    x = min(SERVO_MAX_STEP / (1+ pow(EULER, -x * SERVO_SLOPE)), SERVO_MAX_STEP);
+    x = SERVO_MAX_STEP / (1+ pow(EULER, -SIGMOID_SLOPE * x + SIGMOID_OFFSET));
     ang = x * SERVO_DIRECTION;
   #endif
     
   #if defined(PROPORTIONAL)
     float x = float(avgLeft - avgRight) / 10;
-    x = min(x, SERVO_MAX_STEP);
     ang = x * SERVO_DIRECTION;  
   #endif
   }
+
+  // upper and lower limit for angle step
+  ang = (abs(ang) > SERVO_MAX_STEP ? SERVO_MAX_STEP * ang/abs(ang) : ang);
+  ang = (abs(ang) < SERVO_MIN_STEP ? 0 : ang);
 
   // move servo by n degrees
   movePanBy(ang);
@@ -209,9 +210,9 @@ void mainLoop() {
 
   if (debug) {
     Serial.print("RSSI%: ");
-    Serial.print(map(avgLeft, 120, 400, 0, 100));
+    Serial.print(map(avgLeft, RSSI_MIN, RSSI_MAX, 0, 100));
     Serial.print(", ");
-    Serial.print(map(avgRight, 120, 400, 0, 100));
+    Serial.print(map(avgRight, RSSI_MIN, RSSI_MAX, 0, 100));
 
     // raw rssi values, use these for RSSI_MIN and RSSI_MAX
     //Serial.print("RAW RSSI: ");
@@ -230,14 +231,8 @@ void mainLoop() {
 void movePanBy(float angle) {
 
   anglePan += angle;
-
-  if (anglePan >= SERVO_MAX)
-    anglePan = SERVO_MAX;
-  else if (anglePan <= SERVO_MIN)
-    anglePan = SERVO_MIN;
-
+  anglePan = limit(SERVO_MIN, SERVO_MAX, anglePan);
   servoPan.write(anglePan);
-
 }
 
 void measureRSSI() {
@@ -267,4 +262,8 @@ void advanceArray(uint16_t *samples, uint8_t n) {
 }
 
 
+float limit(float lowerLimit, float upperLimit, float var) {
+
+  return min(max(var, lowerLimit), upperLimit);
+}
 
