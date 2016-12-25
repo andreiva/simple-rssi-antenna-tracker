@@ -190,7 +190,7 @@ void mainLoop() {
 
   #if defined(SIGMOID)
     float x = float(avgLeft - avgRight) / 10;
-    x = SERVO_MAX_STEP / (1+ pow(EULER, -SIGMOID_SLOPE * x + SIGMOID_OFFSET));
+    x = SERVO_MAX_STEP / (1+ exp(-SIGMOID_SLOPE * x + SIGMOID_OFFSET));
     ang = x * SERVO_DIRECTION;
   #endif
     
