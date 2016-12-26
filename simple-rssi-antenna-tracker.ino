@@ -24,8 +24,10 @@ RELATIVE
 #define SIGMOID_SLOPE       1
 #define SIGMOID_OFFSET      4
 
-#if !defined(EXPONENTIAL) && !defined(SIGMOID) && !defined(PROPORTIONAL) && !defined(RELATIVE)
-  #error "Please define tracking curve: EXPONENTIAL, SIGMOID, PROPORTIONAL, RELATIVE"
+#if !defined(EXPONENTIAL) ^ !defined(SIGMOID) ^ !defined(PROPORTIONAL) ^ !defined(RELATIVE)
+// all good
+#else
+  #error "Please define ONE tracking curve: EXPONENTIAL, SIGMOID, PROPORTIONAL, RELATIVE"
 #endif
 
 
@@ -76,7 +78,7 @@ RELATIVE
    Prevents tracker from oscillating when target is in the center
    When using SIGMOID or EXPONENTIAL you can set this almost to 0
 */
-#define DEADBAND            15
+#define DEADBAND            5
 
 /*
    Depending which way around you put your servo
@@ -135,9 +137,9 @@ void mainLoop() {
   uint16_t avgRight = max(avg(rssi_right_array, FIR_SIZE) + RSSI_OFFSET_RIGHT, RSSI_MIN);
 
   // If avg RSSI is above 90%, don't move
-  if ((avgRight + avgLeft) / 2 > 360) {
-    return;
-  }
+//  if ((avgRight + avgLeft) / 2 > 360) {
+//    return;
+//  }
 
   /*
      the lower total RSSI is, the lower deadband gets
