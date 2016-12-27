@@ -48,7 +48,7 @@ RELATIVE
 
    Find value that evens out RSSI
  */
-#define RSSI_OFFSET_RIGHT   17
+#define RSSI_OFFSET_RIGHT   0
 #define RSSI_OFFSET_LEFT    0
 
 /*
