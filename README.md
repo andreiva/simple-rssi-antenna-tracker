@@ -31,3 +31,9 @@ No pairing, no telemetry, no configuration, just tune and track.
 
 ###Youtube video
 [https://www.youtube.com/watch?v=aACTKziuDVE](https://www.youtube.com/watch?v=aACTKziuDVE)
+
+###Timer.h Arduino library
+To install Timer library, download the ZIP file here:
+[https://github.com/JChristensen/Timer]https://github.com/JChristensen/Timer
+How to install libraries
+[https://www.youtube.com/watch?v=K1cIWCBKaUY] https://www.youtube.com/watch?v=K1cIWCBKaUY
