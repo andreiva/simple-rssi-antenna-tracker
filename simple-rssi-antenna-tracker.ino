@@ -48,7 +48,7 @@ RELATIVE
 
    Find value that evens out RSSI
  */
-#define RSSI_OFFSET_RIGHT   0
+#define RSSI_OFFSET_RIGHT   19
 #define RSSI_OFFSET_LEFT    0
 
 /*
@@ -63,8 +63,8 @@ RELATIVE
 
    Find values where servo doesn't buzz at full deflection
 */
-#define SERVO_MAX           175
-#define SERVO_MIN           3
+#define SERVO_MAX           180
+#define SERVO_MIN           0
 
 /*
  * Servo 'speed' limits
