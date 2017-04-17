@@ -8,13 +8,13 @@ This tracker relies solely on RSSI, no GPS or compass is involved.
 This means you can track any 5.8GHz signal source to which the receiver is tuned to.
 No pairing, no telemetry, no configuration, just tune and track.
 
-###Pros:
+### Pros:
 * It's cheap and simple. You probably already have most of the the parts.
 * no GPS needed
 * no telemetry needed
 * can track any 5.8GHz source
 
-###Cons:
+### Cons:
 * tracking is relative
 * tracker doesn't really know where the target is
 * may wander off target
@@ -29,12 +29,12 @@ No pairing, no telemetry, no configuration, just tune and track.
 * [5V voltage regulator](http://www.ebay.com/sch/i.html?_from=R40&_trksid=p2047675.m570.l1313.TR0.TRC0.H0.TRS0&_nkw=MP1584EN&_sacat=0)
 * tracker head mount, 3D printed or made from scrap
 
-###Youtube video
+### Youtube video
 [https://www.youtube.com/watch?v=aACTKziuDVE](https://www.youtube.com/watch?v=aACTKziuDVE)
 
-###Timer.h Arduino library
+### Timer.h Arduino library
 To install Timer library, download the ZIP file here:
 [https://github.com/JChristensen/Timer](https://github.com/JChristensen/Timer)
 
 How to install libraries
-[https://www.youtube.com/watch?v=K1cIWCBKaUY](https://www.youtube.com/watch?v=K1cIWCBKaUY)
+[https://www.youtube.com/watch?v=Alz-rX6lkEw](https://www.youtube.com/watch?v=Alz-rX6lkEw)
