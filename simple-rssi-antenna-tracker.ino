@@ -48,7 +48,7 @@ RELATIVE
 
    Find value that evens out RSSI
  */
-#define RSSI_OFFSET_RIGHT   19
+#define RSSI_OFFSET_RIGHT   0
 #define RSSI_OFFSET_LEFT    0
 
 /*
@@ -136,14 +136,14 @@ void mainLoop() {
   uint16_t avgLeft = max(avg(rssi_left_array, FIR_SIZE) + RSSI_OFFSET_LEFT, RSSI_MIN);
   uint16_t avgRight = max(avg(rssi_right_array, FIR_SIZE) + RSSI_OFFSET_RIGHT, RSSI_MIN);
 
-  // If avg RSSI is above 90%, don't move
+//  If avg RSSI is above 90%, don't move
 //  if ((avgRight + avgLeft) / 2 > 360) {
 //    return;
 //  }
 
   /*
      the lower total RSSI is, the lower deadband gets
-     allows more precise tracking then target is far away
+     allows more precise tracking when target is far away
   */
   uint8_t dynamicDeadband = (float(avgRight + avgLeft) / 2 - RSSI_MIN) / (RSSI_MAX - RSSI_MIN) * DEADBAND;
 
@@ -211,22 +211,19 @@ void mainLoop() {
 
 
   if (debug) {
-    Serial.print("RSSI%: ");
-    Serial.print(map(avgLeft, RSSI_MIN, RSSI_MAX, 0, 100));
-    Serial.print(", ");
-    Serial.print(map(avgRight, RSSI_MIN, RSSI_MAX, 0, 100));
+//    Serial.print("RSSI%: ");
+//    Serial.print(map(avgLeft, RSSI_MIN, RSSI_MAX, 0, 100));
+//    Serial.print(", ");
+//    Serial.print(map(avgRight, RSSI_MIN, RSSI_MAX, 0, 100));
 
     // raw rssi values, use these for RSSI_MIN and RSSI_MAX
-    //Serial.print("RAW RSSI: ");
-    //Serial.print(avgLeft);
-    //Serial.print(", ");
-    //Serial.print(avgRight);
+    Serial.print("Calibration - left: ");
+    Serial.print(avgLeft);
+    Serial.print(" right: ");
+    Serial.print(avgRight);
 
-    Serial.print(" servo: ");
-    Serial.print(anglePan);
-
-    Serial.print(" > ");
-    Serial.println(ang);
+    Serial.print(" servo-angle: ");
+    Serial.println(anglePan);
   }
 }
 
